@@ -13,8 +13,4 @@ class Solution:
 
         return secondSell
 
-# Example usage
-sol = Solution()
-print(sol.maxProfit([3,3,5,0,0,3,1,4]))  # Output: 6
-print(sol.maxProfit([1,2,3,4,5]))        # Output: 4
-print(sol.maxProfit([7,6,4,3,1]))        # Output: 0
+
