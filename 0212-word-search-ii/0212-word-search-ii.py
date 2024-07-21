@@ -1,47 +1,46 @@
 class TrieNode:
     def __init__(self):
         self.children = {}
-        self.word = False
-        
-    def addWord(self, word):
-        cur = self
-        for c in word:
-            if c not in cur.children:
-                cur.children[c] = TrieNode()
-            cur = cur.children[c]
-        cur.word = True
+        self.is_end_of_word = False
+        self.word = None
 
 class Solution:
     def findWords(self, board: List[List[str]], words: List[str]) -> List[str]:
         root = TrieNode()
         
-        for w in words:
-            root.addWord(w)
-            
-        ROWS, COLS = len(board), len(board[0])
-        res, visit = set(), set()
+        # Build the Trie
+        for word in words:
+            node = root
+            for char in word:
+                if char not in node.children:
+                    node.children[char] = TrieNode()
+                node = node.children[char]
+            node.is_end_of_word = True
+            node.word = word
         
-        def dfs(r, c, node, word):
-            if (r < 0 or c < 0 or 
-                r == ROWS or c == COLS or 
-                (r, c) in visit or board[r][c] not in node.children):
+        def dfs(x, y, node):
+            char = board[x][y]
+            if char not in node.children:
                 return
+            node = node.children[char]
+            if node.is_end_of_word:
+                found_words.add(node.word)
             
-            visit.add((r, c))
-            node = node.children[board[r][c]]
-            word += board[r][c]
-            if node.word:
-                res.add(word)
-                
-            dfs(r - 1, c, node, word)
-            dfs(r + 1, c, node, word)
-            dfs(r, c - 1, node, word)
-            dfs(r, c + 1, node, word)
+            board[x][y] = '#'  # Mark the cell as visited
+            for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:  # Up, down, left, right
+                nx, ny = x + dx, y + dy
+                if 0 <= nx < m and 0 <= ny < n and board[nx][ny] != '#':
+                    dfs(nx, ny, node)
+            board[x][y] = char  # Unmark the cell
             
-            visit.remove((r, c))
-            
-        for r in range(ROWS):
-            for c in range(COLS):
-                dfs(r, c, root, "")
+        m, n = len(board), len(board[0])
+        found_words = set()
         
-        return list(res)
+        # Start DFS from each cell
+        for i in range(m):
+            for j in range(n):
+                dfs(i, j, root)
+        
+        return list(found_words)
+
+
